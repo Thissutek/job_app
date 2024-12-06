@@ -4,11 +4,19 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+       CHOKIDAR_USEPOLLING: "true"
+    stdin_open: true
+    tty: true
+    command: npm start
     depends_on:
-      - backend #Ensure backend is running before the frontend
+      - backend
+    container_name: job_app
     
 
   backend:
@@ -24,7 +32,7 @@ services:
       DB_PASSWORD: postgres
       DB_NAME: job_db
     depends_on:
-      - db #Ensure the database is running before the backend
+      - db
 
   db:
     image: postgres:latest
