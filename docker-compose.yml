@@ -31,6 +31,7 @@ services:
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_NAME: job_db
+    command: npm run dev
     depends_on:
       - db
 
