@@ -9,7 +9,29 @@ export default function LoginForm() {
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    
+    e.preventDefault();
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if(response.ok) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('username', data.username);
+        navigate('/mainpage');
+      } else {
+        setErrorMessage(data.message);
+      }
+
+    } catch (error) {
+      setErrorMessage('Login failed. Please try again.');
+    }
   };
 
   return (
