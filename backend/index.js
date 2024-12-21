@@ -84,7 +84,6 @@ app.post('/api/jobs', authenticateToken, async (req, res) => {
   try {
     const query = `INSERT INTO job_applications (user_id, job_title, company, salary, date_applied, status, interview_stage) 
     VALUES($1, $2, $3, $4, $5, $6, $7)
-    RETURNING *;
     `;
     const values = [userId, jobTitle, company, salary, dateApplied, status, interviewStage];
     await pool.query(query, values)

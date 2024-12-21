@@ -21,7 +21,7 @@ export default function LoginForm() {
 
       const data = await response.json();
 
-      if(response.ok) {
+      if (response.ok) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('username', data.username);
         navigate('/mainpage');

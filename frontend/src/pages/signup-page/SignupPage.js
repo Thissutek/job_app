@@ -21,7 +21,7 @@ export default function SignUpPage() {
       const data = await response.json();
 
       // If sign up was successful, redirect to login page to login
-      if(response.ok) {
+      if (response.ok) {
         navigate('/');
       } else {
         setErrorMessage(data.message);
