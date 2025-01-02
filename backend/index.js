@@ -86,7 +86,9 @@ app.post('/api/jobs', authenticateToken, async (req, res) => {
     VALUES($1, $2, $3, $4, $5, $6, $7)
     `;
     const values = [userId, jobTitle, company, salary, dateApplied, status, interviewStage];
-    await pool.query(query, values)
+    await pool.query(query, values);
+
+    res.status(201).json({ message: 'Job application added successfully'});
   } catch(error) {
     console.error(error);
     res.status(500).json({ message: 'Server error'})
@@ -111,6 +113,34 @@ app.get('/api/jobs', authenticateToken, async (req, res) => {
     console.error('Error fetching job applications', error);
     res.status(500).json({ message: 'Server Error. Please try again.'})
   }
+})
+
+//Delete job application
+app.delete('/api/jobs/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { userId } = req.user;
+
+  if(!userId) {
+    return res.status(401).json({ message: 'Unauthorized'});
+  }
+
+  try {
+    const checkJobQuery = `SELECT * FROM job_applications WHERE id = $1 AND user_id = $2`;
+    const checkJobResult = await pool.query(checkJobQuery, [id, userId]);
+
+    if(checkJobResult.rows.length === 0) {
+      return res.status(404).json({ message: "Job application not found or unauthorized"})
+    }
+
+    const deleteQuery = `DELETE FROM job_applications WHERE id = $1`;
+    await pool.query(deleteQuery, [id]);
+
+    return res.status(200).json({ message: 'Job application deleted successfully'})
+  } catch (error) {
+    console.error('Error deleting job application', error);
+    return res.status(500).json({ message: 'Server Error'});
+  }
+  
 })
 
 

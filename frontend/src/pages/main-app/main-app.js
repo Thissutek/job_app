@@ -36,6 +36,31 @@ export default function MainApp() {
     fetchJobs();
   }, []);
 
+  const handleDelete = async (jobId) => {
+    const token = localStorage.getItem('token');
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/jobs/${jobId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        setJobs(jobs.filter(job => job.id !== jobId));
+        alert('Job application deleted successfully')
+      } else {
+        const error = await response.json();
+        alert(`Error, ${error.message}`);
+      }
+    } catch (error) {
+      console.error('Error deleting job', error);
+      alert('An error occurred. Please try again.')
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -61,7 +86,7 @@ export default function MainApp() {
         const savedJob = await response.json();
         setJobs([...jobs, savedJob]);
         alert('Job application added successfully');
-        clearForm();
+        window.location.reload();
       } else {
         const error = await response.json();
         alert(`Error: ${error.message}`)
@@ -71,16 +96,6 @@ export default function MainApp() {
       alert('An error occurred. Please try again.')
     }
   };
-
-  const clearForm = () => {
-    setJobTitle('');
-    setCompany('');
-    setSalary('');
-    setDateApplied('');
-    setStatus('');
-    setInterviewStage('');
-  };
-
 
   return (
     <div>
@@ -173,6 +188,11 @@ export default function MainApp() {
                 </td>
                 <td className="px-6 py-4">
                   {job.interview_stage}
+                </td>
+                <td className="px-6 py-4">
+                  <button onClick={() => handleDelete(job.id)} className="text-red-500 hover:text-red-700">
+                  Delete
+                  </button>
                 </td>
               </tr>
             ))}
