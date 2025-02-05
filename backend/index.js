@@ -143,6 +143,43 @@ app.delete('/api/jobs/:id', authenticateToken, async (req, res) => {
   
 })
 
+//Update job application status
+app.put('/api/jobs/:id', authenticateToken, async (req, res) => {
+  const { userId } = req.user;
+  const { id } = req.params;
+  const { jobTitle, company, salary, dateApplied, status, interviewStage } = req.body;
+
+  if (!userId) {
+    return res.status(401).json({ message: 'Unauthorized'});
+  }
+
+  if(!jobTitle || !company || !salry || !dateApplied || !status || !interviewStage) {
+    return res.status(400).json({message: 'All Fields are required'})
+  }
+
+  try {
+    const result = await pool.query(`UPDATE job_applications
+      SET job_title = $1,
+          company = $2,
+          salary = $3,
+          date_applied = $4,
+          status = $5,
+          interview_stage = $6
+        WHERE id = $7 AND user_id = $8
+        RETURNING *`,
+      [jobTitle, company, salary, dateApplied, status,interviewStage, id. userId]);
+
+      console.log('SQL Query Params:', [jobTitle, company, salary, dateApplied, status, interviewStage, id]); // Debuggin line
+      if(result.rows.length === 0) {
+        return res.status(404).json({message: 'Job application not found'})
+      }
+
+      res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error changing job status', error.message);
+    res.status(500).json({ message: 'Server error'})
+  }
+})
 
 app.listen(port, () => {
     console.log(`Backend running on http://localhost:${port}`)
