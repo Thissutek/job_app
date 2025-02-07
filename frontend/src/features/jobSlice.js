@@ -2,17 +2,18 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   jobs: [],
-  status: 'idle',
+  status: 'idle' | 'loading' | 'succeeded' | 'failed',
   error: null,
 };
 
 export const fetchJobs = createAsyncThunk('jobs/fetchjobs', async () => {
-  const response = await fetch('/api/jobs')
-  return response.json()
+  const response = await fetch('http://localhost:5000/api/jobs')
+  const data = await response.json()
+  return data
 });
 
 export const addJob = createAsyncThunk('jobs/addJob', async (newJob) => {
-  const response = await fetch('/api/jobs', {
+  const response = await fetch('http://localhost:5000/api/jobs', {
     method: 'POST',
     headers: {'Content-type': 'application/json'},
     body: JSON.stringify(newJob),
@@ -21,15 +22,16 @@ export const addJob = createAsyncThunk('jobs/addJob', async (newJob) => {
 });
 
 export const updateJob = createAsyncThunk('/jobs/updateJob', async ({id, updateData}) => {
-  const response = await fetch(`/api/jobs/${id}`, {
+  const response = await fetch(`http://localhost:5000/api/jobs/${id}`, {
     method: 'PATCH',
     headers: { 'Content-type': 'application/json'},
     body: JSON.stringify(updateData),
   })
+  return response.json()
 });
 
 export const deleteJob = createAsyncThunk('/jobs/deleteJob', async (id) => {
-  await fetch(`/api/jobs/${id}`, { method: 'DELETE'});
+  await fetch(`http://localhost:5000/api/jobs/${id}`, { method: 'DELETE'});
   return id;
 })
 
@@ -44,7 +46,7 @@ const jobSlice = createSlice({
       .addCase(fetchJobs.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(fetchJobs.fullfilled, (state, action) => {
+      .addCase(fetchJobs.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.jobs = action.payload;
       })
@@ -53,7 +55,7 @@ const jobSlice = createSlice({
         state.error = action.error.message
       })
       .addCase(addJob.fulfilled, (state, action) => {
-        state.jobs.push(action.payload);
+        state.jobs.push(...action.payload);
       })
       .addCase(updateJob.fulfilled, (state, action) => {
         const index = state.jobs.findIndex((job) => job.id === action.payload.id);
