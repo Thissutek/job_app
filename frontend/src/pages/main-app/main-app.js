@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import DatePicker from "react-datepicker";
+import React, { useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
+
 import NavBar from "../../components/nav-bar/NavBar";
 import JobForm from "../../components/JobForm";
 import JobTable from "../../components/JobTable";

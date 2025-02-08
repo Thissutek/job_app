@@ -143,6 +143,30 @@ app.delete('/api/jobs/:id', authenticateToken, async (req, res) => {
   
 })
 
+//Update a job
+app.put('/api/jobs/:id',authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { job_title, company, salary, status, interview_stage, date_applied } = req.body;
+  const dateApplied = date_applied || new Date().toISOString(); //
+
+  try {
+    const result = await pool.query(
+      'UPDATE job_applications SET job_title = $1, company = $2, salary = $3, status = $4, interview_stage = $5, date_applied = $6 WHERE id = $7 RETURNING *',
+      [job_title, company, salary, status, interview_stage, dateApplied, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Job not found' });
+    }
+
+    const updatedJob = result.rows[0]; // Get the updated job data
+    res.status(200).json(updatedJob);
+  } catch (error) {
+    console.error('Error updating job', error);
+    res.status(500).json({ message: 'Error updating job' });
+  }
+});
+
 
 app.listen(port, () => {
     console.log(`Backend running on http://localhost:${port}`)
