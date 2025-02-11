@@ -8,8 +8,20 @@ export default function SignUpPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
   
+  const passwordChecks = {
+    minLength: password.length >= 8,
+    specialChars: /[!@#$%^&*]/.test(password),
+    notValidChars: /[<>{}]/.test(password)
+  }
+
   const handleSignUp = async (e) => {
     e.preventDefault();
+
+    if (!passwordChecks.minLength || !passwordChecks.specialChars || ! passwordChecks.notValidChars) {
+      setErrorMessage("Password does not meet the requirements");
+      return;
+    }
+
     try {
       const response = await fetch('http://localhost:5000/api/auth/signup', {
         method: 'POST',
@@ -22,6 +34,7 @@ export default function SignUpPage() {
 
       // If sign up was successful, redirect to login page to login
       if (response.ok) {
+        alert('User has successfully signed up.')
         navigate('/');
       } else {
         setErrorMessage(data.message);
@@ -66,6 +79,14 @@ export default function SignUpPage() {
             className='w-full px-4 py-2 border rounded-md'
             required
           />
+        </div>
+        <div className='text-sm mb-4'>
+          <p className={passwordChecks.minLength ? "text-green-600" : "text-red-600"}>
+            {passwordChecks.minLength ? "✅" : "❌" } At least 8 characters
+          </p>
+          <p className={passwordChecks.specialChars ? "text-green-600" : "text-red-600"}>
+            {passwordChecks.specialChars ? "✅" : "❌" } Includes a special character
+          </p>
         </div>
         <button type='submit' className='w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-500'>
                       Sign Up
